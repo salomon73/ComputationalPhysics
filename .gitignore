@@ -1,0 +1,13 @@
+*.log
+*.aux
+*.out
+*.snm
+*.gz
+*.nav
+*.toc
+*.asv
+.DS_Store
+*.mat
+*.m~
+*.o
+*.key
