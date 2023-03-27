@@ -1,0 +1,347 @@
+\documentclass{article}
+% Change "article" to "report" to get rid of page number on title page
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{extramarks}
+\usepackage{chngpage}
+\usepackage{soul}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{graphicx,float,wrapfig}
+\usepackage{ifthen}
+\usepackage{listings}
+\usepackage{courier}
+
+
+%   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+%
+%   Here put your info (name, due date, title etc).
+%   the rest should be left unchanged.
+%
+%
+%
+%   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+% Homework Specific Information
+\newcommand{\hmwkTitle}{}
+\newcommand{\hmwkSubTitle}{Fourier transforms and analysis}
+\newcommand{\hmwkDueDate}{March 30, 2023}
+\newcommand{\hmwkClass}{Computational Physics III}
+\newcommand{\hmwkClassTime}{}
+%\newcommand{\hmwkClassInstructor}{Prof. Oleg Yazyev}
+\newcommand{\hmwkAuthorName}{Salomon Guinchard}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+%
+%
+
+
+% In case you need to adjust margins:
+\topmargin=-0.45in      %
+\evensidemargin=0in     %
+\oddsidemargin=0in      %
+\textwidth=6.5in        %
+\textheight=9.5in       %
+\headsep=0.25in         %
+
+% This is the color used for  comments below
+\definecolor{MyDarkGreen}{rgb}{0.0,0.4,0.0}
+
+% For faster processing, load Matlab syntax for listings
+\lstloadlanguages{Matlab}%
+\lstset{language=Matlab,                        % Use MATLAB
+        frame=single,                           % Single frame around code
+        basicstyle=\small\ttfamily,             % Use small true type font
+        keywordstyle=[1]\color{Blue}\bf,        % MATLAB functions bold and blue
+        keywordstyle=[2]\color{Purple},         % MATLAB function arguments purple
+        keywordstyle=[3]\color{Blue}\underbar,  % User functions underlined and blue
+        identifierstyle=,                       % Nothing special about identifiers
+                                                % Comments small dark green courier
+        commentstyle=\usefont{T1}{pcr}{m}{sl}\color{MyDarkGreen}\small,
+        stringstyle=\color{Purple},             % Strings are purple
+        showstringspaces=false,                 % Don't put marks in string spaces
+        tabsize=3,                              % 5 spaces per tab
+        %
+        %%% Put standard MATLAB functions not included in the default
+        %%% language here
+        morekeywords={xlim,ylim,var,alpha,factorial,poissrnd,normpdf,normcdf},
+        %
+        %%% Put MATLAB function parameters here
+        morekeywords=[2]{on, off, interp},
+        %
+        %%% Put user defined functions here
+        morekeywords=[3]{FindESS, homework_example},
+        %
+        morecomment=[l][\color{Blue}]{...},     % Line continuation (...) like blue comment
+        numbers=left,                           % Line numbers on left
+        firstnumber=1,                          % Line numbers start with line 1
+        numberstyle=\tiny\color{Blue},          % Line numbers are blue
+        stepnumber=1                        % Line numbers go in steps of 5
+        }
+
+% Setup the header and footer
+\pagestyle{fancy}                                                       %
+\lhead{\hmwkAuthorName}                                                 %
+%\chead{\hmwkClass\ (\hmwkClassInstructor\ \hmwkClassTime): \hmwkTitle}  %
+\rhead{\hmwkClass\ : \hmwkTitle}  %
+%\rhead{\firstxmark}                                                     %
+\lfoot{\lastxmark}                                                      %
+\cfoot{}                                                                %
+\rfoot{Page\ \thepage\ of\ \protect\pageref{LastPage}}                  %
+\renewcommand\headrulewidth{0.4pt}                                      %
+\renewcommand\footrulewidth{0.4pt}                                      %
+
+% This is used to trace down (pin point) problems
+% in latexing a document:
+%\tracingall
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Some tools
+\newcommand{\enterProblemHeader}[1]{\nobreak\extramarks{#1}{#1 continued on next page\ldots}\nobreak%
+                                    \nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak}%
+\newcommand{\exitProblemHeader}[1]{\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak%
+                                   \nobreak\extramarks{#1}{}\nobreak}%
+
+\newlength{\labelLength}
+\newcommand{\labelAnswer}[2]
+  {\settowidth{\labelLength}{#1}%
+   \addtolength{\labelLength}{0.25in}%
+   \changetext{}{-\labelLength}{}{}{}%
+   \noindent\fbox{\begin{minipage}[c]{\columnwidth}#2\end{minipage}}%
+   \marginpar{\fbox{#1}}%
+
+   % We put the blank space above in order to make sure this
+   % \marginpar gets correctly placed.
+   \changetext{}{+\labelLength}{}{}{}}%
+
+\setcounter{secnumdepth}{0}
+\newcommand{\homeworkProblemName}{}%
+\newcounter{homeworkProblemCounter}%
+\newenvironment{homeworkProblem}[1][Problem \arabic{homeworkProblemCounter}]%
+  {\stepcounter{homeworkProblemCounter}%
+   \renewcommand{\homeworkProblemName}{#1}%
+   \section{\homeworkProblemName}%
+   \enterProblemHeader{\homeworkProblemName}}%
+  {\exitProblemHeader{\homeworkProblemName}}%
+
+\newcommand{\problemAnswer}[1]
+  {\noindent\fbox{\begin{minipage}[c]{\columnwidth}#1\end{minipage}}}%
+
+\newcommand{\problemLAnswer}[1]
+  {\labelAnswer{\homeworkProblemName}{#1}}
+
+\newcommand{\homeworkSectionName}{}%
+\newlength{\homeworkSectionLabelLength}{}%
+\newenvironment{homeworkSection}[1]%
+  {% We put this space here to make sure we're not connected to the above.
+   % Otherwise the changetext can do funny things to the other margin
+
+   \renewcommand{\homeworkSectionName}{#1}%
+   \settowidth{\homeworkSectionLabelLength}{\homeworkSectionName}%
+   \addtolength{\homeworkSectionLabelLength}{0.25in}%
+   %\changetext{}{-\homeworkSectionLabelLength}{}{}{}%
+   \subsection{\homeworkSectionName}%
+   \enterProblemHeader{\homeworkProblemName\ [\homeworkSectionName]}}%
+  {\enterProblemHeader{\homeworkProblemName}%
+
+   % We put the blank space above in order to make sure this margin
+   % change doesn't happen too soon (otherwise \sectionAnswer's can
+   % get ugly about their \marginpar placement.
+  % \changetext{}{+\homeworkSectionLabelLength}{}{}{}
+   }%
+
+\newcommand{\sectionAnswer}[1]
+  {% We put this space here to make sure we're disconnected from the previous
+   % passage
+
+   \noindent\fbox{\begin{minipage}[c]{\columnwidth}#1\end{minipage}}%
+   \enterProblemHeader{\homeworkProblemName}\exitProblemHeader{\homeworkProblemName}%
+   \marginpar{\fbox{\homeworkSectionName}}%
+
+   % We put the blank space above in order to make sure this
+   % \marginpar gets correctly placed.
+   }%
+
+%%% I think \captionwidth (commented out below) can go away
+%%%
+%% Edits the caption width
+%\newcommand{\captionwidth}[1]{%
+%  \dimen0=\columnwidth   \advance\dimen0 by-#1\relax
+%  \divide\dimen0 by2
+%  \advance\leftskip by\dimen0
+%  \advance\rightskip by\dimen0
+%}
+
+% Includes a figure
+% The first parameter is the label, which is also the name of the figure
+%   with or without the extension (e.g., .eps, .fig, .png, .gif, etc.)
+%   IF NO EXTENSION IS GIVEN, LaTeX will look for the most appropriate one.
+%   This means that if a DVI (or PS) is being produced, it will look for
+%   an eps. If a PDF is being produced, it will look for nearly anything
+%   else (gif, jpg, png, et cetera). Because of this, when I generate figures
+%   I typically generate an eps and a png to allow me the most flexibility
+%   when rendering my document.
+% The second parameter is the width of the figure normalized to column width
+%   (e.g. 0.5 for half a column, 0.75 for 75% of the column)
+% The third parameter is the caption.
+\newcommand{\scalefig}[3]{
+  \begin{figure}[ht!]
+    % Requires \usepackage{graphicx}
+    \centering
+    \includegraphics[width=#2\columnwidth]{#1}
+    %%% I think \captionwidth (see above) can go away as long as
+    %%% \centering is above
+    %\captionwidth{#2\columnwidth}%
+    \caption{#3}
+    \label{#1}
+  \end{figure}}
+
+% Includes a MATLAB script.
+% The first parameter is the label, which also is the name of the script
+%   without the .m.
+% The second parameter is the optional caption.
+\newcommand{\matlabscript}[2]
+  {\begin{itemize}\item[]\lstinputlisting[caption=#2,label=#1]{#1.m}\end{itemize}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Make title
+%\title{\vspace{2in}\textmd{\textbf{\hmwkClass:\ \hmwkTitle\ifthenelse{\equal{\hmwkSubTitle}{}}{}{\\\hmwkSubTitle}}}\\\normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate}\\\vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkClassTime}}\vspace{3in}}
+\title{\vspace{2in}\textmd{\textbf{\hmwkClass:\ \hmwkTitle\ifthenelse{\equal{\hmwkSubTitle}{}}{}{\\\hmwkSubTitle}}}\\\normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate}\\\vspace{0.1in}\large{\textit{ \hmwkClassTime}}\vspace{3in}}
+\date{}
+\author{\textbf{\hmwkAuthorName}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\begin{spacing}{1.1}
+\maketitle
+% Uncomment the \tableofcontents and \newpage lines to get a Contents page
+% Uncomment the \setcounter line as well if you do NOT want subsections
+%       listed in Contents
+%\setcounter{tocdepth}{1}
+\newpage
+\tableofcontents
+\newpage
+
+% When problems are long, it may be desirable to put a \newpage or a
+% \clearpage before each homeworkProblem environmenthttps://www.overleaf.com/project/5e6b2eb0146d4b00014629ac
+
+\newpage
+
+\begin{homeworkProblem}
+
+\section{Discrete Fourier transform}
+
+The Fourier transform is a mathematical operator that changes the way a complex valued function defined over the real space $\mathbb{R}^n$ is described, by describing the function in terms of the frequencies that it contains. Formally, the Fourier transform of a function $f$ is defined as follows:\\
+
+\beq
+\mathcal{F}(f)(\mathbf{k}):=\hat{f}(\mathbf{k})  = \int_{\mathbb{R}^n}f(x)\cdot e^{-2\pi i \mathbf{k}\cdot \mathbf{x}}d\mathbf{x},
+\eeq\\
+
+\noindent where $\mathbf{k}$ is an element from the so-called Fourier space, or frequency space, and $\mathbf{x} \in \mathbb{R}^n$. For the sake of simplicity, in what follows, we will focus only on the 1-dimensional case, so the Fourier transform reads\\
+
+\beq
+\mathcal{F}(f)(k):= \hat{f}(k) = \int_R f(t)\cdot e^{-2 \pi i kt}dt.\label{FT}
+\eeq\\
+
+\noindent  The discrete Fourier transform aims at computing the integral from Eq.(\ref{FT}) over a discrete set of points. To do so, one needs to discretize the real and the Fourier spaces, that is describe $f$ over a discrete set of points $f\rightarrow f(t_n)$, $n \in \mathbb{N}$. However, in order for the discrete transform to be implemented numerically, the function can only be described on a finite set of points. Choosing the same number of grid points ($N$) for both the real and Fourier spaces, the discrete formulation of Eq.(\ref{FT}) reads \\
+
+\beq
+\hat{f}[m] =  \sum_{n=0}^{N-1} f[n] e^{-2\pi i mn/N},\label{DFT}
+\eeq\\
+
+\noindent where $f(t_n) = f[n]$ and $\hat{f}(k_m) = \hat{f}[m]$. Then, the numerical implementation of the above Eq.(\ref{DFT}) is straightforward, and the algorithm is shown below:\\
+
+  \begin{homeworkSection}{Discrete Fourier transform algorithm} 
+\matlabscript{simple}{Matlab script for the discrete Fourier transform algorithm}
+    \end{homeworkSection}
+
+\end{homeworkProblem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\begin{homeworkProblem}
+
+\section{NMR spectroscopy}
+
+The structure of molecules and solids can be determined by mean of NMR spectroscopy. To do so, the transitions between different quantum states of nuclear spins (of protons) in an externally applied magnetic field are studied. More precisely, the spins are excited by radio-frequency waves and their relaxation is recorded. The recorded signal is called the free-induction decay (FID). The Fourier transform of the FID yields the NMR spectrum.\\
+
+\end{homeworkProblem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\begin{homeworkProblem}
+
+\section{Radix-2 FFT algorithm}
+
+
+\end{homeworkProblem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\begin{homeworkProblem}
+
+\section{Fourier Ptychography}
+
+Fourier ptychograpghy enables to overcome the problem of limited resolution in conventional optical microscopy by generating a wider aperture, that is by allowing a wider range of angles under which the light can be captured by the microscope. Indeed, denoting the resolution by $\mathcal{R}$, one gets the following relation:\\
+
+\beq
+\mathcal{R} \propto \frac{\lambda}{n \sin(\theta)},
+\eeq\\
+
+\noindent where $\lambda$ is the wavelength of the incoming light, $n$ the refractive index of the lens and $\theta$ the maximum angle of acceptance. It is then trivial that increasing $\theta$ will increase $\mathcal{R}$.\\
+
+\noindent In order to understand the Fourier ptychography algorithm, let us recall how a typical optical microscope works. Considering that the studied object can be represented by a 2-dimensional complex function $O$, that is the real space image is given by $O(x,y)$, where $(x,y)$ is an appropriate coordinate choice. Thus, the reciprocal (Fourier space) image is given by $\mathcal{F}(O)(k_x,k_y)\cdot a(k_x,k_y)$, where $\mathcal{F}$ represents the Fourier transform operator and $a$ an amplitude transfer function of finite radius. The latter can be approximated by a low-pass filter of radius $r_c$, mapping to $1$ below $r_{c}$ and $0$ otherwise. The real image is then reconstructed after the light passes through the second lens, and the detector will record an intensity $I \propto |\mathcal{F}^{-1}\Big(\mathcal{F}(O)(k_x,k_y)\cdot a(k_x,k_y)\Big)|^2$.\\
+
+\noindent In Fourier ptychography, the process is slightly different since instead of using perpendicular plane waves $\propto e^{ik_{zi}z}$ as illumination sources, several images are taken with tilted light sources $\propto e^{ik_{xi}x}e^{ik_{yi}y}e^{ik_{zi}z}$. Then by the transfer theorem from Eq.(\ref{}), the Fourier transform is shifted as follows:\\
+
+\beq
+\mathcal{F}(O)(k_x-k_{xi},k_y-k_{yi}),
+\eeq\\
+
+\noindent and hence, the intensity recorded by the microscope verifies\\
+
+\beq
+I \propto \Big|\mathcal{F}^{-1}\Big(\mathcal{F}(O)(k_x-k_{xi},k_y-k_{yi})\cdot a(k_x,k_y)\Big)\Big|^2.
+\eeq\\
+
+\noindent The cutoff circle has then been shifted by $(k_{xi}, k_{yi})$ and some higher frequencies were involved in the image formed. Thus, taking several images under tilting angles enables to reconstruct the Fourier transform with a higher cutoff radius, and enhance the resolution.\\
+
+\subsection{Numerical implementation of Fourier ptychography algorithm}
+
+In the next part, the following reconstruction algorithm will be used:\cite{Idehara_2016}\\
+
+\noindent 
+\begin{enumerate}
+\item{Start with a (complex) guess function $I$ and compute $\mathcal{F}(I)$.}
+\item{Restrict $\mathcal{F}(I)$ to a circle in Fourier space, centered around $(k_{xi}, k_{yi})$ multiplying it by a cutting function: $\mathcal{F}(I)\rightarrow \mathcal{F}(I)_c =\mathcal{F}(I)\cdot C_{(k_{xi}, k_{yi})}$}
+\item{Take its inverse Fourier transform $\mathcal{F}^{-1}(\mathcal{F}(I)_c)$}
+\item{Retain the phase but replace the magnitude by the experimental one}
+\item{Perform the Fourier transform of the resulting object and use it to replace the values of $\mathcal{F}(I)$ inside the cutoff circle}
+\item{Repeat the previous steps for the the circles in Fourier space, that is for different values of $(k_{xi}, k_{yi})$}
+\item{Repeat the previous algorithm till convergence is reached}
+\end{enumerate}
+
+
+
+\end{homeworkProblem}
+
+
+\end{spacing}
+
+\newpage
+\bibliographystyle{alpha}
+\bibliography{references}
+\end{document}
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
