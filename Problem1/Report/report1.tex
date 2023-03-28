@@ -34,6 +34,7 @@
 \newcommand{\hmwkAuthorName}{Salomon Guinchard}
 \newcommand{\beq}{\begin{equation}}
 \newcommand{\eeq}{\end{equation}}
+\graphicspath{{./Illustrations/}{./IllustrationsResults/}}  
 %
 %
 
@@ -256,9 +257,9 @@ The Fourier transform is a mathematical operator that changes the way a complex 
 
 \noindent where $f(t_n) = f[n]$ and $\hat{f}(k_m) = \hat{f}[m]$. Then, the numerical implementation of the above Eq.(\ref{DFT}) is straightforward, and the algorithm is shown below:\\
 
-  \begin{homeworkSection}{Discrete Fourier transform algorithm} 
-\matlabscript{simple}{Matlab script for the discrete Fourier transform algorithm}
-    \end{homeworkSection}
+\begin{homeworkSection}{1- Discrete Fourier transform algorithm} 
+	\matlabscript{simple}{Matlab script for the discrete Fourier transform algorithm}
+\end{homeworkSection}
 
 \end{homeworkProblem}
 
@@ -272,7 +273,47 @@ The Fourier transform is a mathematical operator that changes the way a complex 
 
 The structure of molecules and solids can be determined by mean of NMR spectroscopy. To do so, the transitions between different quantum states of nuclear spins (of protons) in an externally applied magnetic field are studied. More precisely, the spins are excited by radio-frequency waves and their relaxation is recorded. The recorded signal is called the free-induction decay (FID). The Fourier transform of the FID yields the NMR spectrum.\\
 
+\noindent The NMR spectrum relates the intensity of the signal as a function of the chemical shift $\delta$, that we defines as follows:\\
+
+\beq
+\delta = \frac{f - f_0}{\nu_0},\label{chemical_shift}
+\eeq\\
+
+\noindent where $f$ denotes the frequency, that will be of course discretized, $f_0$ the internal reference, and $\nu_0$ the operating frequency of the NMR spectrometer. All frequencies are expressed in the same order of magnitude for the units (e.g. Hz).\\
+
+\begin{homeworkSection}{1 - FID of C$_2$H$_6$O$_2$} 
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1.0 \textwidth]{FID.eps}
+	\caption{\label{FID} Upper: plot of the real part $\mathcal{R}(FID)$ of the free-induction decay over time. Lower: plot of the imaginary part $\mathcal{I}(FID)$. }
+\end{figure}  
+\end{homeworkSection}
+
+\begin{homeworkSection}{2 - Nyquist cutoff frequency and discrete frequencies for Fourier transform}
+Recall that the Nyquist-Shannon sampling theorem states that the sampling rate $\Delta t$ has to be at most $\Delta t = 1/(2f_c)$, where $f_c$ is the Nyquist frequency, for the signal to be properly reconstructed, and to avoid aliasing issues. Thus, for $\Delta t = 83.2\cdot 10^{-6}$s, one obtains that $f_c = 6.01\cdot10^{3}$Hz. The discrete frequencies spanning the interval $[-f_c, f_c]$ are then defined by $f_n := (-N/2+n)\cdot (2/N\cdot f_c)$, with $n\in\{0,…,N-1\}$.\\
+
+\noindent Using the previously defined discrete frequencies, it is possible to discretize the chemical shift $\delta_n$ from Eq.(\ref{chemical_shift}), and changing $f$ by $f_n$. In our problem, the internal reference is taken as $f_0 = 1067.93$Hz and $\nu_0 = 800.224 \cdot 10^6$Hz.
+
+\end{homeworkSection}
+
+\begin{homeworkSection}{3 - Protons and chemical environment}
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1.0 \textwidth]{DFT_FID.eps}
+	\caption{\label{FID} Upper: plot of the real part $\mathcal{R}(FID)$ of the free-induction decay over time. Lower: plot of the imaginary part $\mathcal{I}(FID)$. }
+\end{figure}  
+\newpage
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1.0 \textwidth]{Power_err.eps}
+	\caption{\label{FID} Upper: plot of the real part $\mathcal{R}(FID)$ of the free-induction decay over time. Lower: plot of the imaginary part $\mathcal{I}(FID)$. }
+\end{figure}  
+
+
+\end{homeworkSection}
 \end{homeworkProblem}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
@@ -281,6 +322,9 @@ The structure of molecules and solids can be determined by mean of NMR spectrosc
 
 \section{Radix-2 FFT algorithm}
 
+\begin{homeworkSection}{1- Radix-2 Fast Fourier transform algorithm} 
+	\matlabscript{radix}{Matlab script for the Radix-2 Fast Fourier transform algorithm}
+\end{homeworkSection}
 
 \end{homeworkProblem}
 
