@@ -20,7 +20,7 @@
 function discrete_fourier = myfft(F)
 
     discrete_fourier = zeros(size(F));
-    N = length(f);
+    N = length(F);
     r = log2(N); % checking whether N is a power of two or not. Mandatory for
                  % this algo.
     if abs(r-uint64(r))>1e-5 %arbitrary threshold 

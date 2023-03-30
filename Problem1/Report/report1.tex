@@ -290,7 +290,8 @@ The structure of molecules and solids can be determined by mean of NMR spectrosc
 \end{figure}  
 \end{homeworkSection}
 
-\begin{homeworkSection}{2 - Nyquist cutoff frequency and discrete frequencies for Fourier transform}
+\begin{homeworkSection}{2 - Nyquist and discrete frequencies for Fourier transform}
+
 Recall that the Nyquist-Shannon sampling theorem states that the sampling rate $\Delta t$ has to be at most $\Delta t = 1/(2f_c)$, where $f_c$ is the Nyquist frequency, for the signal to be properly reconstructed, and to avoid aliasing issues. Thus, for $\Delta t = 83.2\cdot 10^{-6}$s, one obtains that $f_c = 6.01\cdot10^{3}$Hz. The discrete frequencies spanning the interval $[-f_c, f_c]$ are then defined by $f_n := (-N/2+n)\cdot (2/N\cdot f_c)$, with $n\in\{0,…,N-1\}$.\\
 
 \noindent Using the previously defined discrete frequencies, it is possible to discretize the chemical shift $\delta_n$ from Eq.(\ref{chemical_shift}), and changing $f$ by $f_n$. In our problem, the internal reference is taken as $f_0 = 1067.93$Hz and $\nu_0 = 800.224 \cdot 10^6$Hz.
@@ -300,16 +301,41 @@ Recall that the Nyquist-Shannon sampling theorem states that the sampling rate $
 \begin{homeworkSection}{3 - Protons and chemical environment}
 \begin{figure}[h!]
 \centering
-	\includegraphics[width = 1.0 \textwidth]{DFT_FID.eps}
-	\caption{\label{FID} Upper: plot of the real part $\mathcal{R}(FID)$ of the free-induction decay over time. Lower: plot of the imaginary part $\mathcal{I}(FID)$. }
-\end{figure}  
-\newpage
-\begin{figure}[h!]
-\centering
-	\includegraphics[width = 1.0 \textwidth]{Power_err.eps}
-	\caption{\label{FID} Upper: plot of the real part $\mathcal{R}(FID)$ of the free-induction decay over time. Lower: plot of the imaginary part $\mathcal{I}(FID)$. }
+	\includegraphics[width = 1.0 \textwidth]{DFT_FID.jpg}
+	\caption{\label{FID_real_im} Upper: plot of the real part $\mathcal{R}(FID)$ of the free-induction decay over time. Lower: plot of the imaginary part $\mathcal{I}(FID)$. }
 \end{figure}  
 
+\noindent Fig.(\ref{FID_real_im}) shows the real and imaginary parts of the Fourier transform of the FID, as a function of the chemical shift. It displays the comparative results for both our implementation of the discrete Fourier transform \emph{mydft}, and the Matlab function \emph{fft}. Note the perfect overlap of the curves. The obtained results are identical, but the difference between the two algorithms lays in the fact that the computational complexities are not the same, and so neither are the computational times. This will be dealt with later, when introducing the \textbf{Radix-2 algorithm} for the Fast Fourier transform.\\
+
+\noindent Fig.(\ref{power_spectrum}) shows the power spectrum of the Fourier transform of the FID as well as the relative error $\epsilon_r$ over the power spectrum between \emph{mydft} and \emph{fft}, taking \emph{fft} as the reference:\\
+
+\beq
+\epsilon_r = \Big| \frac{\text{mydft}-\text{fft}}{\text{fft}}\Big|.
+\eeq\\
+
+\noindent One notes that as said earlier, the results are identical. The error is slightly more important in the region of the peaks, and the average relative error seems to increase with $\delta$.\\
+
+\noindent As of the chemical environment of the protons in that molecule, one notes that the upper plot from Fig.(\ref{power_spectrum}) has two very distinct peaks at $\delta_1 = 3.33$ ppm and $\delta_2 = 4.96 $ ppm respectively. Thus those two peaks are characteristics of two different chemical environment for the protons. The latter represents all the atoms the proton is related to. It is not only the particles it is chemically bonded with, but all the particles that it is close to. The area under the peaks in the power spectrum is proportional to the square of the number of protons in each environment. Since we're not able with those data only to determine the scaling law, we'll take the ratio between the two areas, both defined by\\
+
+\beq
+\mathcal{A}_i = \int_{\Omega_i} d\delta \mathcal{P}(\delta),
+\eeq\\
+
+\noindent with $\Omega_i = [\delta_i-\Delta \delta, \delta_i + \Delta \delta]$ $i=1,2$ for an appropriate $\Delta \delta$. Thus, taking the ratio $r = \mathcal{A}_1/\mathcal{A}_2$, one gets $r=1.73$. Then, there are approximately 1.73 more protons in the first chemical environment than in the second.
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = .9 \textwidth]{Power_err.jpg}
+	\caption{\label{power_spectrum} Upper: plot of the real part $\mathcal{R}(FID)$ of the free-induction decay over time. Lower: plot of the imaginary part $\mathcal{I}(FID)$. }
+\end{figure}  
+
+\noindent Considering that C, O and H atoms are able to form covalent bonds with 4, 2 and 1 neighbors respectively, it is possible to suggest the structural formula of the molecule C$_2$H$_6$O$_2$. Indeed, recall from the previous part that the molecule had two different chemical environment for protons, with about $1.73\sim2$ times more protons in one environment than the other. This means that for a molecule with 6 H atoms, equivalent to protons after forming a covalent bond, there has two be 4 H atoms with the same type of covalent bond, and 2 with a different one. Therefore, we can come up with the two following possible structures:
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = .9 \textwidth]{Comput_molecule}
+	\caption{\label{molecular_struct} Two possible molecular structures for C$_2$H$_6$O$_2$}
+\end{figure} 
 
 \end{homeworkSection}
 \end{homeworkProblem}
@@ -376,6 +402,20 @@ In the next part, the following reconstruction algorithm will be used:\cite{Ideh
 \end{enumerate}
 
 
+\begin{homeworkSection}{1 - Phase and Intensity}
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = .9 \textwidth]{phase+intens.eps}
+	\caption{\label{phase_intens} Left: Original intensity image - Right: Original phase image }
+\end{figure} 
+
+\noindent Fig.(\ref{phase_intens}) displays both the original intensity and the original phase. By mean of Fourier ptychography, on some simulated microscope images, we will try to retrieve the phase and enhance the resolution. The implementation of the above algorithm will be described and the results will be presented below. 
+
+\end{homeworkSection}
+
+\begin{homeworkSection}{Microscope images}
+The microscope images were obtained by taking the Fourier transform of the original objects, and by applying circular filters in Fourier space, before taking the inverse Fourier transform and record the new intensity. Fig.(\ref{microscope}) shows an example of such a 'microscope' image. One notes that the result obtained in Fourier space is not contained in the original circular low pass filter. This is due to the fact that when  
+\end{homeworkSection}
 
 \end{homeworkProblem}
 
