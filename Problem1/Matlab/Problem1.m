@@ -174,12 +174,12 @@ figure
 
 %% ptycho 2 %%
 
-for ii=0-2:1:2
-    for jj=-2:1:2
+for ii=0%-2:1:2
+    for jj=0%-2:1:2
         fname=['ptychography_' num2str(ii) '_' num2str(jj) '.png'];
         ptycho=fftshift(fft2(im2double(imread(fname))));
-        ptycho_log=log(abs(ptycho)); 
-            imshow(ptycho_log,[]);
+        ptycho_log=abs(ptycho); 
+            imshow(log(ptycho_log),[]);
     end
 end
 
@@ -257,24 +257,65 @@ inv = ifft2(image_filtered);
 phase_inv = angle(inv);
 phase_inv = sqrt(im2double(imread('ptychography_0_0.png'))).*exp(1j*phase_inv);
 new_fft   = fft2(phase_inv);
-new_fft   = log(new_fft.*cutoff);
+new_fft   = new_fft.*cutoff;
 figure
-    imshow(new_fft, [])
+    imshow(log(new_fft), [])
+figure
+    imshow((ifft2(new_fft)), [])
+
+
+
+%% Ptycho algorithm %%
+
+guess = ones(512,512);
+cutoff  = zeros(512,512);   % 'hand' built filter
+for ii=1:N
+  for jj=1:N
+      if(ii-(N-1)/2)^2+(jj-(N-1)/2)^2 < 100^2
+          cutoff(ii,jj)=1;
+      else
+          cutoff(ii,jj)=0;
+      end
+  end
+end
+
+%%
+%Intens  = sqrt(im2double(imread('ptychography_0_0.png')));
+Intens = sqrt(abs())
+
+I_F     = fftshift(fft2(guess));
+I_F_cut = I_F.*cutoff;
+I_cut   = ifft2(I_F_cut);
+phase   = angle(I_cut);
+guess     = Intens.*exp(1j*phase);
+
+new_F   = fftshift(fft2(new));
+new_F   = new_F.*cutoff;
+
+figure
+    imshow(log(guess), [])
+
+figure
+   imshow(log(new_F), [])
 
 
 %% ptycho 5 %% 
-for ii =1:15
-    for jj =1:16
+for ii =1:20
+    for jj =1:21
         new_cutoff = circshift(cutoff,[50*ii, 50*(jj-1)]);
         im_filt = guess.* new_cutoff;
         inv = ifft2(im_filt);
         phase = angle(inv);
         phase = sqrt(im2double(imread('ptychography_0_0.png'))).*exp(1j*phase);
         new_fft   = fft2(phase);
-        new_fft   = log(new_fft.*new_cutoff);
-        imshow(new_fft, [])
+        guess   = new_fft.*new_cutoff;
+        %imshow(new_fft, [])
+        %imshow(log(ifft2(new_fft)), [])
     end
 end 
+new_fft= guess;
+figure
+imshow(log((new_fft)), [])
 
 
 %%

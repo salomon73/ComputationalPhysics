@@ -271,7 +271,7 @@ The Fourier transform is a mathematical operator that changes the way a complex 
 
 \section{NMR spectroscopy}
 
-The structure of molecules and solids can be determined by mean of NMR spectroscopy. To do so, the transitions between different quantum states of nuclear spins (of protons) in an externally applied magnetic field are studied. More precisely, the spins are excited by radio-frequency waves and their relaxation is recorded. The recorded signal is called the free-induction decay (FID). The Fourier transform of the FID yields the NMR spectrum.\\
+The structure of molecules and solids can be determined by mean of NMR spectroscopy \cite{Yazyev}. To do so, the transitions between different quantum states of nuclear spins (of protons) in an externally applied magnetic field are studied. More precisely, the spins are excited by radio-frequency waves and their relaxation is recorded. The recorded signal is called the free-induction decay (FID). The Fourier transform of the FID yields the NMR spectrum.\\
 
 \noindent The NMR spectrum relates the intensity of the signal as a function of the chemical shift $\delta$, that we defines as follows:\\
 
@@ -348,6 +348,8 @@ Recall that the Nyquist-Shannon sampling theorem states that the sampling rate $
 
 \section{Radix-2 FFT algorithm}
 
+The discrete Fourier transform has been implemented previously in a very straightforward method. However, the computational complexity of the previous algorithm is $\mathcal{O}(n^2)$, whis is numerically very demanding. The Radix-2 Fast Fourier transform algorithm is an alternative to compute the discrete Fourier transform in $\mathcal{O}(n\log(n))$, using a recursive approach to subdivide the initial problem \cite{Yazyev}. The Matlab numerical implementation of the algorithm can be found below.\\
+
 \begin{homeworkSection}{1- Radix-2 Fast Fourier transform algorithm} 
 	\matlabscript{radix}{Matlab script for the Radix-2 Fast Fourier transform algorithm}
 \end{homeworkSection}
@@ -372,7 +374,7 @@ Fourier ptychograpghy enables to overcome the problem of limited resolution in c
 
 \noindent In order to understand the Fourier ptychography algorithm, let us recall how a typical optical microscope works. Considering that the studied object can be represented by a 2-dimensional complex function $O$, that is the real space image is given by $O(x,y)$, where $(x,y)$ is an appropriate coordinate choice. Thus, the reciprocal (Fourier space) image is given by $\mathcal{F}(O)(k_x,k_y)\cdot a(k_x,k_y)$, where $\mathcal{F}$ represents the Fourier transform operator and $a$ an amplitude transfer function of finite radius. The latter can be approximated by a low-pass filter of radius $r_c$, mapping to $1$ below $r_{c}$ and $0$ otherwise. The real image is then reconstructed after the light passes through the second lens, and the detector will record an intensity $I \propto |\mathcal{F}^{-1}\Big(\mathcal{F}(O)(k_x,k_y)\cdot a(k_x,k_y)\Big)|^2$.\\
 
-\noindent In Fourier ptychography, the process is slightly different since instead of using perpendicular plane waves $\propto e^{ik_{zi}z}$ as illumination sources, several images are taken with tilted light sources $\propto e^{ik_{xi}x}e^{ik_{yi}y}e^{ik_{zi}z}$. Then by the transfer theorem from Eq.(\ref{}), the Fourier transform is shifted as follows:\\
+\noindent In Fourier ptychography, the process is slightly different since instead of using perpendicular plane waves $\propto e^{ik_{zi}z}$ as illumination sources, several images are taken with tilted light sources $\propto e^{ik_{xi}x}e^{ik_{yi}y}e^{ik_{zi}z}$. Then the Fourier transform is shifted as follows:\\
 
 \beq
 \mathcal{F}(O)(k_x-k_{xi},k_y-k_{yi}),
@@ -387,10 +389,12 @@ I \propto \Big|\mathcal{F}^{-1}\Big(\mathcal{F}(O)(k_x-k_{xi},k_y-k_{yi})\cdot a
 \noindent The cutoff circle has then been shifted by $(k_{xi}, k_{yi})$ and some higher frequencies were involved in the image formed. Thus, taking several images under tilting angles enables to reconstruct the Fourier transform with a higher cutoff radius, and enhance the resolution.\\
 
 \subsection{Numerical implementation of Fourier ptychography algorithm}
+\vspace{1cm}
 
-In the next part, the following reconstruction algorithm will be used:\cite{Idehara_2016}\\
+In the next part, the following reconstruction algorithm will be used \cite{Yazyev}:\\
 
 \noindent 
+\newpage
 \begin{enumerate}
 \item{Start with a (complex) guess function $I$ and compute $\mathcal{F}(I)$.}
 \item{Restrict $\mathcal{F}(I)$ to a circle in Fourier space, centered around $(k_{xi}, k_{yi})$ multiplying it by a cutting function: $\mathcal{F}(I)\rightarrow \mathcal{F}(I)_c =\mathcal{F}(I)\cdot C_{(k_{xi}, k_{yi})}$}
@@ -413,9 +417,63 @@ In the next part, the following reconstruction algorithm will be used:\cite{Ideh
 
 \end{homeworkSection}
 
-\begin{homeworkSection}{Microscope images}
+\begin{homeworkSection}{2 - Microscope images}
 The microscope images were obtained by taking the Fourier transform of the original objects, and by applying circular filters in Fourier space, before taking the inverse Fourier transform and record the new intensity. Fig.(\ref{microscope}) shows an example of such a 'microscope' image. One notes that the result obtained in Fourier space is not contained in the original circular low pass filter. This is due to the fact that when  
+
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = .5 \textwidth]{ptychography00.eps}
+	\caption{\label{microscope}  Fourier transform of the image ptychography00.png }
+\end{figure} 
 \end{homeworkSection}
+
+
+\begin{homeworkSection}{3 - Algorithm and filter}
+Let us take for initial guess the unit function $I(x,y) = 1$ $\forall x,y$ on the grid. Performing the Fourier transform on that constant function will yield a Dirac Delta function in Fourier space, hence the pixel on the left plot of Fig.(\ref{filter_fig}). Restraining the Fourier transform by mean of a fixed aperture (cutoff disk) centered at the center of the grid (see middle plot on Fig.(\ref{filter_fig})) will not affect the pixel since it is inside the 'passing region' of the filter. The right plot of Fig.(\ref{filter_fig}) indeed confirms that remark. 
+
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1 \textwidth]{filter.pdf}
+	\caption{\label{filter_fig}  Left: Fourier transform of constant unit guess. Middle: Cutoff filter for constrained aperture in Fourier space. Right: Result after applying the filter to the left image.}
+\end{figure} 
+\end{homeworkSection}
+
+\begin{homeworkSection}{4 - Guess improvement }
+
+The initial guess can be improved by taking the inverse Fourier transform of the previous result, keeping the phase and replacing the intensity by the one measured on the image \emph{ptychography00.png}. Fig.(\ref{guess_updated}) illustrates the concept of phase retrieval through the application of this procedure. Indeed, a comparison between Fig.(\ref{microscope}) and Fig(\ref{guess_updated}) confirms that. \\
+ 
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 0.7 \textwidth]{guess_updated.eps}
+	\caption{\label{guess_updated} Phase retrieval process illustration. The Fourier transform of the initial guess is represented, with the intensity from \emph{ptychography00.png}}
+\end{figure} 
+\end{homeworkSection}
+
+
+\begin{homeworkSection}{5 - One iteration}
+The previous guess can be further improved by combining guesses all the 'microscope images' \emph{ptychography-i,j.png}. The cutoff filter is shifted on the grid for each of them and the cutouts are combined to form a better guess of the Fourier transform of the initial object. Fig.(\ref{one_step}) demonstrates that, representing on the left the intensity and on the right the phase of the inverse Fourier transform of that combined and improved guess. The similarity with the initial images from Fig.(\ref{phase_intens}) is quite obvious.\\
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1 \textwidth]{one_step.eps}
+	\caption{\label{one_step} Left: Intensity from the inverse Fourier transform of the improved guess. Right: Phase for the same. }
+\end{figure} 
+\end{homeworkSection}
+
+\begin{homeworkSection}{6 - Iterative process}
+
+The process described above can be repeated a certain amount of times, typically till convergence occurs. However, in our case, we will limit to 20 iterations, and not test for convergence. Fig.(\ref{final_ptycho}) displays the results for the intensity and for the phase after 20 iterations of the previous algorithm. Note that the the images are much more focused than after one iteration. However, the result is still a little blurry compared to the initial images from Fig.(\ref{phase_intens}).
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1 \textwidth]{final_ptycho.eps}
+	\caption{\label{final_ptycho}  Left: Intensity after 20 iteration of the Fourier Ptychography algorithm. Right: Same for the phase.}
+\end{figure} 
+\end{homeworkSection}
+
+
 
 \end{homeworkProblem}
 

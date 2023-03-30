@@ -1,10 +1,8 @@
-\begin{thebibliography}{IS16}
+\begin{thebibliography}{Yaz23}
 
-\bibitem[IS16]{Idehara_2016}
-Toshitaka Idehara and Svilen~Petrov Sabchevski.
-\newblock Gyrotrons for high-power terahertz science and technology at {FIR}
-  {UF}.
-\newblock {\em Journal of Infrared, Millimeter, and Terahertz Waves},
-  38(1):62--86, oct 2016.
+\bibitem[Yaz23]{Yazyev}
+Oleg Yazyev.
+\newblock Computational physics iii - lecture notes.
+\newblock march 2023.
 
 \end{thebibliography}
