@@ -235,11 +235,85 @@
 
 \begin{homeworkProblem}
 
-\section{1st problem}
+\section{LU decomposition}
 
-\begin{homeworkSection}{1- Discrete Fourier transform algorithm} 
-	\matlabscript{simple}{Matlab script for the discrete Fourier transform algorithm}
+The LU decomposition of a square matrix corresponds to the expansion of the matrix as a product of a lower triangular (L) and an upper triangular (U) matrices. Given a matrix $A$, its LU decomposition  is then $A \equiv L\cdot U$, where $\cdot$ corresponds to the matricial product. For example, given the linear $4x4$ system of equations:\\
+
+\beq
+\begin{split}
+2x_1 + x_2-x_3+5x_4 &=13 \\
+x_1 + 2x_2 + 3x_3 - x_4 &= 37\\
+x_1 + x_3 + 6 x_4 &= 30 \\
+x_1+3x_2-x_3 + 5x_4 &= 19\\ 
+\end{split}
+\eeq\\
+
+\noindent it is possible to solve it by writing in in form of the following matrix equation:\\
+
+\beq
+A \mathbf{x} = \mathbf{b},\label{system1}
+\eeq\\
+
+\noindent where $\mathbf{x} = (x_1, x_2, x_3, x_4)^{T}$, $\mathbf{b} = (13, 37, 30, 19)^{T}$ and $A$ is the matrix containing the coefficients of the system. Performing manually the LU algorithm by hand, Eq.(\ref{system1}) can be solved applying LU decomposition and backward substitution. Since the point of the report is to emphasize the numerical aspect of this decomposition, the calculations are skipped and the result is given below.\\
+
+\beq
+A = \left(\begin{array}{cccc}2 & 1 & -1 & 5 \\1 & 2 & 3 & -1 \\1 & 0 & 1 & 6 \\1 & 3 & -1 & 5\end{array}\right) = \cdot L\cdot U,
+\eeq\\
+
+\noindent with 
+
+\beq
+L = \left(\begin{array}{cccc}1 & 0 & 0 & 0 \\1/2 & 1 & 0 & 0 \\1/2 & -1/3 & 1 & 0 \\1/2 & 5/3 & -19/8 & 1\end{array}\right) \hspace{3mm}\text{ and } \hspace{3mm} U = \left(\begin{array}{cccc}2 & 1 & -1 & 5 \\0 & 3/2 & 7/2 & -7/2 \\0 & 0 & 8/3 & 7/3 \\0 & 0 & 0 & 111/8\end{array}\right)
+\eeq\\
+
+\noindent One can easily verify that upon multiplying $L$ and $U$, we recover $A$. Hence, applying the following algorithm with $L$ and $U$ defined as above,\\
+
+\begin{enumerate}
+\item{Perform LU decomposition}
+\item{Perform forward substitution $L\mathbf{y} = \mathbf{b}$}
+\item{Perform backward substitution $U \mathbf{x} = \mathbf{y}$}
+\end{enumerate}
+
+\noindent one gets that $\mathbf{x} = (2, 4, 10, 3)^{T}$, which is the answer provided by the matlab expression $A/\mathbf{b}$.
+
+
+ 
+\begin{homeworkSection}{1- LU decomposition algorithm} 
+	\matlabscript{simple}{Matlab script for the LU decomposition without pivoting}
 \end{homeworkSection}
+
+\begin{homeworkSection}{2- Ill posed problem for LU without pivoting} 
+In some cases, certain matrices can become problematic when performing their LU decomposition without pivoting, as in some step of the algorithm, some zeros can appear on the diagonal. Since at the step $k$, the coefficients $l_{ik}^{(k)} \propto 1/{a_{kk}^{(k)}}$, if the latter coefficient $1/{a_{kk}^{(k)}}$ is zero, some infinite values will appear in the process.\\
+
+\noindent It is the case for the matrix\\
+
+\beq
+A = \left(\begin{array}{ccc}1 & 2 & 3 \\2 & 4 & 9 \\4 & -3 & 1\end{array}\right)
+\eeq\\
+
+\noindent as in step $k=2$, a zero is present on the diagonal for the term $a_{22}$:\\
+
+\beq
+A^{(2)} = \left(\begin{array}{ccc}1 & 2 & 3 \\0 & 0 & 3 \\4 & -3 & 1\end{array}\right)
+\eeq\\
+
+\noindent In that case, the pivoting becomes necessary. The algorithm implementation (in matlab) for the LU decomposition, with pivoting, yields the following result for the ill-posed situation from above:\\
+
+\beq
+L = \left(\begin{array}{ccc}1 & 0 & 0  \\1/2 & 1 & 0  \\1/4 & 1/2 & 1 \end{array}\right) \hspace{6mm} U = \left(\begin{array}{ccc}4 & -3 & 1  \\0 & 11/2 & 17/2  \\0 & 0 & -3/2 \end{array}\right)  \hspace{3mm}\text{ and } \hspace{3mm} P = \left(\begin{array}{ccc} 0 & 0 & 1  \\0 & 1 & 0 \\1 & 0 & 0 \end{array}\right)
+\eeq\\
+
+\noindent The above results correspond to those obtained by the matlab \emph{lu.m} function.
+
+\end{homeworkSection}\end{homeworkProblem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\begin{homeworkProblem}
+
+\section{Equivalent resistance of infinite resistor grid}
 
 \end{homeworkProblem}
 
@@ -249,12 +323,107 @@
 
 \begin{homeworkProblem}
 
-\section{NMR spectroscopy}
+\section{Vibrating modes of a string}
+
+Considering a vibrating string, and denoting the amplitude of the vibrations by $u$, one gets that the amplitude will have the following dependence in space and time $u \equiv u(x,t)$. Introducing the constants $\kappa$ and $\rho$, corresponding respectively to energy and mass densities per unit length, the action of the problem in the harmonic approximation reads:\\
+
+\beq
+\S[u(x,t)] = \int_{t_1}^{t_2}dt \int_{0}^{L}dx \Bigg( \frac{1}{2}\rho \Big(\frac{\partial u}{\partial t}\Big)^2- \frac{1}{2}\kappa \Big(\frac{\partial u}{\partial x}\Big)^2\Bigg).
+\eeq \\
+
+\noindent Taking the first variation of the action yields to the following Euler-Lagrange equation, namely the wave equation: \\
+
+\beq
+\frac{\partial^2 u}{\partial t^2} = \frac{\kappa}{\rho}\frac{\partial^2 u}{\partial x^2}.\label{wave}
+\eeq\\
+
+\noindent Applying the following ansatz to decouple the space and time dependences $u(x,t) :=v(t)w(x)$, one gets, plugging it in in Eq.(\ref{wave}),\\
+
+\beq
+\frac{v''}{v} = \frac{\kappa}{\rho}\frac{w''}{w},
+\eeq\\
+
+\noindent where $''$ represents the second order derivative w.r.t the variable it depends on. Since the left term depends on time and the right term depends on space, both terms have to be constant, so focusing on the space term $w''/w$, one gets that\\
+
+\beq
+\frac{w''}{w}\frac{\kappa}{\rho} = c \implies w'' = -\lambda w\label{new_wave},
+\eeq\\
+
+\noindent where $\lambda = -c\rho/\kappa$. Lambda then has the units of a mass/unit energy. If we want to avoid the trivial solution $w\equiv0$, one has to impose $\lambda \neq 0$. Delving a bit more in the analytical structure of the solutions of Eq.(\ref{new_wave}), one sees that the solution need to be such that there exists a set of integers $k$ such that $\lambda \propto k^2/L^2$. The second order space derivative from Eq.(\ref{new_wave}) can be numerically implemented using centered finite differences, having discretized space with $N$ points. Hence, together with the minus term in front of $\lambda$, the latter can be rewritten as an eigenvalue problem:\\
+
+\beq
+A \mathbf{w} = \lambda \mathbf{w},
+\eeq\\
+
+\noindent where the $N\times N$ matrix $A$ is defined as follows:\\
+
+\beq
+A = \Big(\frac{N-1}{2}\Big)^2\left(\begin{array}{cccccc}2 & -1 & 0 & 0 & …& 0 \\-1 & 2 & -1 & … &0& 0 \\0 & -1 & 2 & -1&0 & 0 \\ 0 & … & … & … & … & 0 \\0 & 0 & … & -1 & 2 & -1 \\0 &  0 & 0 & … & -1 & 2\end{array}\right)
+\eeq\\
+
+\noindent An obvious comment can be done about the structure of $A$, that gives out information about the nature of the eigenvalues of $A$: it is tridiagonal and such that $A^{T}=A$. So since $A$ is an orthogonal matrix, there exists a basis of eigenvectors in which $A$ can be diagonalized. Moreover, the eigenvalues can be ordered, such that they correspond to different energy states of the vibratory system. As of the vector $\mathbf{w}$, since we chose Dirichlet boundary counditions $u(0,t) = u(L,t)$ $\forall t$, one gets that $w_1 = w_N = 0$.\\
+
+ 
 
 \end{homeworkProblem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\begin{homeworkProblem}
+
+\section{2D quantum well}
+
+Let us represent a two-dimensional elliptical quantum well by the following potential, where $V_0<0$ is constant, and the ellipticity is set via the parameter $c$. In our numerical implementation, we'll choose $V_0=-1.5$ eV and $r=1$ nm.\\
+
+\beq
+V(x)=
+\begin{cases}
+    V_0<0,&\quad x^2+y^2/c^2<r^2\\
+    0,&\quad \text{otherwise}
+\end{cases}
+\eeq\\
+
+\noindent The electrons moving inside the potential well are described by the time-independent Schrödinger equation, where $\hat{\mathcal{H}}$ is the hamiltonian of the system, $\psi$ and $E$ respectively the wave-function and the energy of the particle:\\
+
+\beq
+\hat{\mathcal{H}}\psi := -\frac{\hbar^2}{2m_e}\Delta\psi + \hat{V}\psi = E \psi, \label{Schro}
+\eeq\\
+
+\noindent where we denoted by $m_e$ the electron mass, $\hbar$ is the reduced Planck constant and $\Delta$ the Laplace operator. On the 2D cartesian coordinates, the Laplace operator takes the form $\Delta := \partial^2/ \partial x^2 + \partial^2/ \partial y^2$. As of the implementation, defining a cartesian grid with $N\times N$ points, $\psi$ and $V$ can both be represented as matrices. The values of the matrix associated to $\psi$ will evolve according to Eq.(\ref{Schro}) whereas the potential matrix will be fixed. Denoting $\psi(x_i,y_j) = \psi_{i,j}$ and $V(x_i,y_j) = V_{i,j}$, the discretized Schrödinger equation reads:\\
+
+\beq
+-\frac{\hbar^2}{2m_e}\Delta\psi_{i,j} + V_{i,j}\psi_{i,j} = E\psi_{i,j}. \label{Schro_disc}
+\eeq\\
+
+\noindent Now using centered finite differences to implement the Laplace operator, that is\\
+
+\beq
+\begin{split}
+\frac{\partial^2 \psi}{\partial x^2} &= \frac{1}{(\Delta x)^2}\big(\psi_{i-1,j}- 2\psi_{i,j} + \psi_{i+1,j}\big)\\
+\frac{\partial^2 \psi}{\partial y^2} &= \frac{1}{(\Delta y)^2}\big(\psi_{i,j-1}- 2\psi_{i,j} + \psi_{i,j+1}\big)\\
+\end{split}
+\eeq\\
+
+\noindent so Eq.(\ref{Schro_disc}) can finally be recast as\\
+
+\beq
+\begin{split}
+&-\frac{\hbar^2}{2m_e}\Bigg\{ -2 \Big( \frac{\Delta x^2 + \Delta y^2}{\Delta x^2 \Delta y^2}\Big)\psi_{i,j} + \frac{1}{\Delta x^2}\Big(\psi_{i-1,j}+ \psi_{i+1,j} \Big)+ \frac{1}{\Delta y^2}\Big(\psi_{i,j-1}+ \psi_{i,j+1} \Big)\Bigg\}\\
++&V_{i,j}\psi_{i,j} = E \psi_{i,j}\\
+\end{split}
+\eeq
+
+\end{homeworkProblem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+
+
 
 \end{spacing}
 
