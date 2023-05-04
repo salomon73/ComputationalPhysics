@@ -1,3 +1,4 @@
+function [L,U] = lu_decomposition_nopiv(A)
 %% LU_DECOMPOSITION_NOPIV( A )
 % =============================================
 % 
@@ -16,7 +17,6 @@
 % ------------------------------------%
 % Written by S.Guinchard (05/02/23)   %
 % ------------------------------------%
-function [L,U] = lu_decomposition_nopiv(A)
 sz=size(A);
 L=eye(sz(1));
 U=A;
