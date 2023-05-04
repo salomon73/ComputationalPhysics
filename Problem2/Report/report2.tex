@@ -297,13 +297,24 @@ A = \left(\begin{array}{ccc}1 & 2 & 3 \\2 & 4 & 9 \\4 & -3 & 1\end{array}\right)
 A^{(2)} = \left(\begin{array}{ccc}1 & 2 & 3 \\0 & 0 & 3 \\4 & -3 & 1\end{array}\right)
 \eeq\\
 
-\noindent In that case, the pivoting becomes necessary. The algorithm implementation (in matlab) for the LU decomposition, with pivoting, yields the following result for the ill-posed situation from above:\\
+\noindent The final result for the LU algorithm without pivoting is indeed problematic, since $L$ and $U$ respectively read:\\
+
+\beq
+L = \left(\begin{array}{ccc}1 & 0 & 0  \\2 & 1 & 0  \\4 & -\text{Inf}& 1 \end{array}\right) \hspace{6mm} U = \left(\begin{array}{ccc}1 & 2 & 3  \\0 & 0 & 3 \\ \text{NaN} & \text{NaN} & \text{Inf} \end{array}\right), 
+\eeq\\
+
+
+\noindent where Inf result from divisions by $0$ and NaN from undetermined forms as $0/0$. In that case, the pivoting becomes necessary. The algorithm implementation (in matlab) for the LU decomposition, with pivoting, yields the following result for the ill-posed situation from above:\\
 
 \beq
 L = \left(\begin{array}{ccc}1 & 0 & 0  \\1/2 & 1 & 0  \\1/4 & 1/2 & 1 \end{array}\right) \hspace{6mm} U = \left(\begin{array}{ccc}4 & -3 & 1  \\0 & 11/2 & 17/2  \\0 & 0 & -3/2 \end{array}\right)  \hspace{3mm}\text{ and } \hspace{3mm} P = \left(\begin{array}{ccc} 0 & 0 & 1  \\0 & 1 & 0 \\1 & 0 & 0 \end{array}\right)
 \eeq\\
 
-\noindent The above results correspond to those obtained by the matlab \emph{lu.m} function.
+\noindent The above results are identical to those obtained by the matlab \emph{lu.m} function.\\
+
+\begin{homeworkSection}{2- LUP decomposition algorithm} 
+	\matlabscript{simple2}{Matlab script for the LU decomposition with pivoting}
+\end{homeworkSection}
 
 \end{homeworkSection}\end{homeworkProblem}
 
@@ -314,6 +325,54 @@ L = \left(\begin{array}{ccc}1 & 0 & 0  \\1/2 & 1 & 0  \\1/4 & 1/2 & 1 \end{array
 \begin{homeworkProblem}
 
 \section{Equivalent resistance of infinite resistor grid}
+
+\end{homeworkProblem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\begin{homeworkProblem}
+
+\section{Power iterations methods}
+
+Iterative power methods provide solutions to eigenvalue problems by mean of algorithms giving sequences of approximate values that converge towards the true solutions of the eigenvalue problem. Usually, the complexity of the problem is of the order of $\mathcal{O}(mn^2)$ where $n$ is dimensionality of the problem and $m$ the number of iterations to reach the desired tolerance.\\
+
+\noindent Here, we only detail the algorithm for the standard power method. A theoretical insight of inverse-power and Rayleigh quotient methods can be found in some literature as \cite{rayleigh}. The power method is based on the very straightforward principle of applying a matrix several times (hence to a certain power) till a certain tolerance is reached:\\
+
+\begin{enumerate}
+\item{Given the matrix $A$ for the eigenvalue problem, define a random unit vector $q^{(0)}$}
+\item{The first element of the values sequence is $\lambda^{(0)} = q^{*(0)}Aq^{(0)}$, where $^*$ stands for the adjoint of the element}
+\item{While $|\lambda^{(k)} - \lambda^{(k-1)}| > \epsilon$, where $\epsilon$ is the tolerance threshold, repeat the following:\\
+	\begin{itemize}
+	\item{$q^{(k)} = Aq^{(k-1)}$}
+	\item{Normalize $q^{(k)}$}
+	\item{$\lambda^{(k)} = q^{*(k)}Aq^{(k)}$}
+	\end{itemize}
+}
+\item{Once the tolerance threshold is reached, $\lambda$ is retained as the last value of the above sequence.}\\
+\end{enumerate}
+
+\begin{homeworkSection}{1- Power method} 
+	\matlabscript{simple3}{Matlab script for standard power method}
+\end{homeworkSection}
+
+\newpage
+The documentation on how to use each function is included in each submitted script in the form \emph{MatlabScript.m} but has been removed here for the sake of saving space. However, each of them can be accessed upon typing the command \emph{help FunctionName} in the Matlab command line.\\
+
+\noindent The inverse power method proceeds to a shift in the direction of the initial guessed eigenvalue, before performing the power iterations with the inverse of the shifted matrix.\\
+
+\noindent The Rayleigh quotient method is very close to the inverse power method. The difference resides in the fact that the estimated eigenvalue is replace by the Rayleigh quotient at the end of each iteration.
+
+\begin{homeworkSection}{2- Inverse power method} 
+	\matlabscript{simple4}{Matlab script for inverse power method}
+\end{homeworkSection}
+
+\begin{homeworkSection}{3- Rayleigh quotient method} 
+	\matlabscript{simple5}{Matlab script for the Rayleigh quotient method}
+\end{homeworkSection}
+
+\noindent All the tests from the scripts \emph{test$_{p,ip,rq}.m$} have been passed successfully.\\
 
 \end{homeworkProblem}
 
