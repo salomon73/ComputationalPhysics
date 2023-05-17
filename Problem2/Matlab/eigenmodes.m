@@ -10,7 +10,7 @@
 % Input parameters
     l0 = 0;
     lN = 1;         % length of the rope 
-    Npoints = 500;  % Number of meshpoints 
+    Npoints = 100;  % Number of meshpoints 
     dx = lN/(Npoints-1); 
 
 % negative Laplace operator - matrix representation %%  
@@ -35,7 +35,7 @@
 
 % Amplitudes - 4 lowest energy states above ground
     for ii = 2:5
-      [eigenv, eigenva] = eig_rq(A,(ii*pi/lN)^2);
+      [eigenv, eigenva] = eig_ipower(A,(ii*pi/lN)^2);
        eigenvals(ii-1)    = eigenva; 
        eigenvects(ii-1,:) = eigenv;
     end
