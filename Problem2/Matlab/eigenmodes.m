@@ -33,12 +33,12 @@
     w(1) = 0; w(end) = 0; % Impose Dirichlet boundary condition
     [eigenmode, eigenval] = eig_ipower(A,(pi/lN)^2);
 
-% % Amplitudes - 4 lowest energy states above ground
-%     for ii = 2:5
-%       [eigenv, eigenva] = eig_ipower(A,(ii*pi/lN)^2);
-%        eigenvals(ii-1)    = eigenva; 
-%        eigenvects(ii-1,:) = eigenv;
-%     end
+% Amplitudes - 4 lowest energy states above ground
+    for ii = 2:5
+      [eigenv, eigenva] = eig_ipower(A,(ii*pi/lN)^2);
+       eigenvals(ii-1)    = eigenva; 
+       eigenvects(ii-1,:) = eigenv;
+    end
 
 %% Plot of results
     figure

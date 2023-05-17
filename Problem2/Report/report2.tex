@@ -316,7 +316,18 @@ L = \left(\begin{array}{ccc}1 & 0 & 0  \\1/2 & 1 & 0  \\1/4 & 1/2 & 1 \end{array
 	\matlabscript{simple2}{Matlab script for the LU decomposition with pivoting}
 \end{homeworkSection}
 
-\end{homeworkSection}\end{homeworkProblem}
+\vspace{1cm}
+
+In order to compare our implementation of the LUP decomposition with the Matlab's one, the relative error between the values of $L$ and $L_{m}$ and $U$ and $U_m$ are computed, and plotted in Fig.(\ref{LU_err}), as a function of the size of the matrices for our eigenvalue problem. The error is close to the machine epsilon, which proves that our scheme has been implemented correctly. Note the linear increasing trend with $n$. The fit shows a value at the origin which is negative. Of course, this result is purely numerical, due to the fact that some outliers biased the curve in a way that the error extrapolated for $n=0$ would be negative, which makes no sense.
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1 \textwidth]{LU_Err.eps}
+	\caption{\label{LU_err}  Relative error on the values for the upper and lower triangular matrices obtained via our LU decomposition scheme, and Matlab's one. The subscripts U and L in the legend correspond to upper and lower triangular respectively.}
+\end{figure}  
+
+\end{homeworkSection}
+\end{homeworkProblem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -326,8 +337,111 @@ L = \left(\begin{array}{ccc}1 & 0 & 0  \\1/2 & 1 & 0  \\1/4 & 1/2 & 1 \end{array
 
 \section{Equivalent resistance of infinite resistor grid}
 
+Let us consider a grid of size $N\times (N-1)$ ($N$ odd) of resistors, all connected with their nearest neighbors, and all the same resistance of 1 $\Omega$ (see Fig.(\ref{grid})). In addition, the following quantities are defined according to the following convention: for $1\le i\le N$, $1\le j\le N-1$, $V(i,j)$ is the voltage measured at node $(i,j)$, $I_r(i,j)$ the current from node $(i,j)$ to node $(i+1,j)$ to the right and $I_t(i,j)$ the current from node $(i,j)$ to node $(i,j+1)$ above. Furthermore, open boundary conditions (B.C) are considered, i.e. no current can enter or flow out the system. Finally, the two points of interest are given by \\
+
+\begin{gather}\label{points}
+    A=\left(\frac{N-1}{2},\frac{N-1}{2}\right),\quad B=\left(\frac{N-1}{2}+2,\frac{N-1}{2}+1\right)
+\end{gather}
+
+\noindent and will be used to measure resistance. Indeed, a current of 1A is introduced at site A, while a current of 1A is extracted from the system at site B to ensure that the electrical current conservation.\\
+
+
+\noindent Let us start by determining the number $N_u$ of unknowns, $V$, $I_r$ and $I_t$ as well as the number $N_c$ of constraints, given together by the boundary conditions, and Kirchoff's nodes law, and Ohm's law. An examination of Fig(\ref{grid}), with 5 nodes enabling an enumeration, it is possible to extrapolate this result to any $N_{nodes} =N$: \\
+
+\begin{gather}
+    N_u=3N(N-1),\qquad N_c=\underbrace{(N-1)^2+N(N-2)}_{\text{Ohm's law}}+\underbrace{N(N-1)}_{\text{Law of nodes}}+\underbrace{2N-1}_{B.C}
+\end{gather}
+
+
+
+\begin{figure}[H]
+            \centering
+            \includegraphics[scale=0.45]{grille.png} 
+            \caption{\label{grid}Configuration for the problem described above}
+ \end{figure}
 \end{homeworkProblem}
 
+\noindent In fact, take for example $N=5$. It follows that $N_u=3*5*4 =N_c=60$, so the problem could hopefully be solved by a matrix inversion. \\
+
+\noindent Let us thus rewrite the system in a matrix form: $A\mathbf{x}=\mathbf{b}$, where $A$ is an $N_c\times N_u$ matrix, $\mathbf{x}$ a $N_u$-dimensional vector and $\mathbf{b}$ an $N_c$-dimensional vector. However, it appears (can be checked with Matlab), that the matrix $A$ is singular, that means non invertible. This result was physically expected. The voltages $V(i,j)$ are defined on each node of the mesh, but since a voltage is a potential difference, it needs to be measured between two nodes. Thus, the voltage is a translational invariant, in the sense that $\Delta V=V(i+1,j)-V(i,j)\equiv V(i+1+\delta x,j)-V(i+\delta x,j)$. Hence, an infinite number of voltage values can fit.\\
+
+\noindent Thus, the kernel of $A$  has to be a 1-dimensional vector space. Matlab can provide an  orthonormal basis for the kernel of $A$ which is indeed a vector space of dimension 1 (one vector $\mathbf{v_0}$). Numerically, this can be verified since $A \cdot\mathbf{v_0} = \epsilon_m$, where $\epsilon_m$ is the machine precision epsilon ($\sim 0$).  \\
+
+The way we decide to bypass this singular determinant problem is to project the problem on the orthogonal complement of $Ker(A)$. To do so, one needs the definition of a projection matrix $P_V$ of size $[N(N-1)+1]\times N(N-1)$ as follows:\\
+ 
+\begin{gather}
+P_V(V_1,V_2,...,V_N)=(V_2-V_1,V_3-V_1,...,V_N-V_1)
+\end{gather}
+
+
+\noindent The full projection matrix is a block diagonal matrix\\
+
+\begin{gather}
+P=
+    \begin{pmatrix}
+    P_V&0&0\\
+    0&I&0\\
+    0&0&I
+    \end{pmatrix}
+\end{gather}
+
+\noindent where $I$ is a current matrix. It can be easily checked that $\det(PAP^t)\neq0$. The $P$ projection of the original system can be solved according to \\
+
+\begin{gather}\label{system projection}
+    PAP^t\mathbf{y}=P\mathbf{b},\qquad \mathbf{x}=P^t\mathbf{y}
+\end{gather}
+
+\noindent Now that $\mathbf{x}$ is known, one can obtain the value of the equivalent resistance $R_{\text{eq}}$ between $A$ and $B$ for any $N$.Note that the current entering the system in $A$ is fixed at 1A, and that the voltage between $A$ and $B$ varies, from Ohm's law, the equivalent resistance is computed to be: \\
+
+
+\begin{gather}\label{req}   R_{\text{eq}}=V\underbrace{\left(\frac{N-1}{2},\frac{N-1}{2}\right)}_{\text{Point A}}-V\underbrace{\left(\frac{N-1}{2}+2,\frac{N-1}{2}+1\right)}_{\text{Point B}},\quad\forall N\quad\text{odd}
+\end{gather}
+
+\noindent Taking the particular case where $N=7$, using $\mathbf{x}$ obtained previously, it comes that $R_{\text{eq}}=0.8462$ $\Omega$.\\
+
+
+\begin{figure}[H]
+            \centering
+            \includegraphics[scale=0.45]{voltage.eps} 
+            \caption{\label{voltage}Voltage distribution along the grid $N=7$, $A=(3,3)$, $B=(5,4)$}
+ \end{figure}
+ 
+ The voltage and the currents $I_r$ and $I_t$ can be plotted, as in Fig.(\ref{voltage})-(\ref{It}). The voltage distribution is consistent with the expectations, since injecting a current in $A$ and extracting it in $B$ yields highest values in amplitude of voltage at those positions, in accordance with Ohm's law. The current distributions $I_t$ and $I_r$ are also consistent  with our initial assumptions. The boundary conditions are respected in the sense that no current can escape or enter the system.\\
+
+
+\begin{figure}[H]
+            \centering
+            \includegraphics[scale=0.45]{Ir.eps} 
+            \caption{\label{Ir}Current $I_r$ distribution for $N=7$}
+ \end{figure}
+
+\begin{figure}[H]
+            \centering
+            \includegraphics[scale=0.45]{It.eps} 
+            \caption{\label{It}Current $I_t$ distribution for $N=7$}
+ \end{figure}
+
+\noindent Finally, it can be verified that Kirschoff's law of nodes holds, i.e. that the algebraic sum of the currents on a node is zero. To verify the law, the sum of the currents flowing in and out of each node can be plotted, as shown in Fig(\ref{kirchoff}). At points $A$ and $B$, the currents are indeed 1A and -1A, respectively. Elsewhere, the current is zero, as predicted.\\
+
+\noindent Finally, let us study the convergence properties of the equivalent resistance $R_{\text{eq}}$ as a function of the size $N$ of the system. More precisely, the question is to determine what size $N$ of the system allows to reach an uncertainty smaller than $10^{-2}$ $\Omega$ on the equivalent resistance.\\
+
+\begin{figure}[H]
+            \centering
+            \includegraphics[scale=0.45]{Kirchoff.eps} 
+            \caption{\label{kirchoff}}
+ \end{figure}
+
+
+\noindent In order to study the convergence, the size of the system is continuously increased, and the previously developed steps are repeated: generation of $A$ such that $A\mathbf{x}=\mathbf{b}$, generation of $P$ to project on the orthogonal complement of $Ker(A)$, solution of the system from Eq.(\ref{system projection}), and finally computation of the equivalent resistance using Eq.(\ref{req}). The result is shown in Fig.(\ref{convergence}). The minimum required size is $N=13$. \\
+
+\begin{figure}[H]
+            \centering
+            \includegraphics[scale=0.45]{convergence.eps} 
+            \caption{\label{convergence}}
+ \end{figure}
+ 
+ \noindent Note that there exists an analytical solution for the same problem with an infinite grid, yileding $R_{\text{eq}}=4/\pi-1/2$. Thus, using the equivalent resistance obtained previously, an estimate of $\pi$ follows: $\pi\approx3.14$.\\
+ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
@@ -408,7 +522,16 @@ Considering a vibrating string, and denoting the amplitude of the vibrations by 
 \frac{w''}{w}\frac{\kappa}{\rho} = c \implies w'' = -\lambda w\label{new_wave},
 \eeq\\
 
-\noindent where $\lambda = -c\rho/\kappa$. Lambda then has the units of a mass/unit energy. If we want to avoid the trivial solution $w\equiv0$, one has to impose $\lambda \neq 0$. Delving a bit more in the analytical structure of the solutions of Eq.(\ref{new_wave}), one sees that the solution need to be such that there exists a set of integers $k$ such that $\lambda \propto k^2/L^2$. The second order space derivative from Eq.(\ref{new_wave}) can be numerically implemented using centered finite differences, having discretized space with $N$ points. Hence, together with the minus term in front of $\lambda$, the latter can be rewritten as an eigenvalue problem:\\
+\noindent where $\lambda = -c\rho/\kappa$. Lambda has the units of $m^{-2}$, which corresponds to the a wave vector squared. If we want to avoid the trivial solution $w\equiv0$, one has to impose $\lambda \neq 0$. Delving a bit more in the analytical structure of the solutions of Eq.(\ref{new_wave}), one sees that the solution need to be such that there exists a set of integers $k$ such that $\lambda \propto k^2/L^2$. In fact, the general solution of Eq.(\ref{new_wave}) can be expressed as:\\
+
+\beq
+w(x) = A\cos(\sqrt{\lambda}x) + B\sin(\sqrt{\lambda}x),
+\eeq\\
+
+\noindent with $A$ and $B$ real valued amplitudes. Together with Dirichlet boundary conditions, one notices that $A$ has to vanish, and that $\lambda = (k\pi/L)^2$, with $k$ non-zero integers.\\
+
+\newpage
+\noindent  To solve this equation, the second order space derivative from Eq.(\ref{new_wave}) can be numerically implemented using centered finite differences, having discretized space with $N$ points. Hence, together with the minus term in front of $\lambda$, the latter can be rewritten as an eigenvalue problem:\\
 
 \beq
 A \mathbf{w} = \lambda \mathbf{w},
@@ -420,14 +543,83 @@ A \mathbf{w} = \lambda \mathbf{w},
 A = \Big(\frac{N-1}{2}\Big)^2\left(\begin{array}{cccccc}2 & -1 & 0 & 0 & …& 0 \\-1 & 2 & -1 & … &0& 0 \\0 & -1 & 2 & -1&0 & 0 \\ 0 & … & … & … & … & 0 \\0 & 0 & … & -1 & 2 & -1 \\0 &  0 & 0 & … & -1 & 2\end{array}\right)
 \eeq\\
 
-\noindent An obvious comment can be done about the structure of $A$, that gives out information about the nature of the eigenvalues of $A$: it is tridiagonal and such that $A^{T}=A$. So since $A$ is an orthogonal matrix, there exists a basis of eigenvectors in which $A$ can be diagonalized. Moreover, the eigenvalues can be ordered, such that they correspond to different energy states of the vibratory system. As of the vector $\mathbf{w}$, since we chose Dirichlet boundary counditions $u(0,t) = u(L,t)$ $\forall t$, one gets that $w_1 = w_N = 0$.\\
+\noindent An obvious comment can be done about the structure of $A$, that gives out information about the nature of the eigenvalues of $A$: it is tridiagonal and such that $A^{T}=A$. So since $A$ is an orthogonal matrix, there exists a basis of eigenvectors in which $A$ can be diagonalized. Moreover, the eigenvalues are strictly positive, and can be ordered, such that they correspond to different 'energy states' of the vibratory system. As of the vector $\mathbf{w}$, since we chose Dirichlet boundary counditions $u(0,t) = u(L,t)$ $\forall t$, one gets that $w_1 = w_N = 0$. The scalar factor in front of the matrix corresponds to $1/dx^2$, where $dx$ is the distance between two meshpoints. Since for $N$ mesh points, one has $N-1$ intervals, the length of one interval is $dx = L/(N-1) = 1/(N-1)$ in our context. \\
 
+\noindent Now that the problem has been discretized, it is possible to find the lowest eigenvalue $\lambda_0$ with the inverse power method that we implemented in the previous part of the report, using a zero shift ($\mu = 0$). The numerically obtained value is $\lambda_0 = 9.7909$ m$^{-2}$. The corresponding vibrating eigenmode is plotted in Fig.(\ref{lowest_eigenmode}).\\
+
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 0.8 \textwidth]{lower_eigen.eps}
+	\caption{\label{lowest_eigenmode}  Eigenmode for lowest eigenvalue $\lambda_0$.}
+\end{figure} 
+
+\noindent Note that the result corresponds to the first standing wave mode for a rope with Dirichlet boundary conditions. In Fig.(\ref{lowest_eigenmode}), [a.d.u] means arbitrary distance unit, since the units depends on the discretization of the problem and haven't been normalized here.\\  
+
+\noindent Now that the lowest eigenvalue has been found, we can focus on higher eigenvalues. To do so, we use the inverse power method with a non-zero shift, and the shift is chosen, for each order, to be the values $\lambda_n := (n^2\pi^2/L^2)$. One notes that the first eigenmode for $\lambda_1$  is identical to the mode $\lambda_0$. For higher orders, that is higher values of $n$, we recover the usual standing wave modes, as pictured in Fig.(\ref{standing_modes}). 
  
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1. \textwidth]{eigenmodes}
+	\caption{\label{standing_modes} The four lowest values modes above the ground state $\lambda_0$. Note that $n$ from $\lambda_n$ is the number of peaks from each standing wave profile. }
+\end{figure} 
+
+\noindent One will note that the eigenvalues here have been found with inverse power method with shift, assuming that the the eigenvalue were known to be the values $\lambda_n$ from the solution of the wave differential equation. In fine, the method worked pretty well, because a comparison of the analytical $\lambda_n$ and the numerically obtained values shows low error, as in Tab.(\ref{table}).\\
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline Eigenvalues [m$^{-2}$] & $\lambda_1$ & $\lambda_2$ & $\lambda_3$ & $\lambda_4$ & $\lambda_5$ \\
+    \hline Analytical & 9.8696 & 39.4784 & 88.8264 & 157.9137 & 246.7401\\
+    \hline Numerical & 9.7909 & 39.1633 & 88.1161 & 156.6472 & 244.7540 \\
+    \hline 
+    \end{tabular}
+    \caption{Comparison between the eigenvalues obtained analytically and numerically.}
+    \label{table}
+\end{table}
+
+
+\end{homeworkProblem}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\newpage
+
+\begin{homeworkProblem}
+
+\section{Jacobi Method}
+
+Though effective, using the power iterative methods can be problematic as they only allow to determine one eigenvalue at a time. A more efficient way would be to diagonalize the matrix from the eigenvalue problem, which corresponds to finding an eigen-basis in which the matrix is diagonal, with its diagonal elements corresponding to the eigenvalues. In the following, we give two implementations of the Jacobi method, the second being the cyclic Jacobi algorithm, which supposedly performs way less rotations to diagonalize the matrix. A comparison of the two algorithms will be presented after the scripts are introduced.\\
+
+\noindent The matrices treated by the Jacobi methods must be symmetric $N\times N$ matrices. The main idea behind these methods, implemented in the algorithms \verb|eig_j.m| (Jacobi method) and \verb|eig_cj.m| (cyclic Jacobi method), is to reduce the norm of the off-diagonal elements of the matrix $A$, define as off$(A)=(\sum_{i,j,i\neq j}a_{i,j}^2)^{1/2}$.
+
+
+\subsection{Jacobi \& cyclic Jacobi method}
+Let us explain in more details how both these two methods work. First, it is a matter of identifying the off-diagonal element with the highest amplitude, i.e. finding $(i,j)$ such that $|a_{i,j}|=\max_{l\neq m}|a_{m,n}|$. Once this pair is determined, the Jacobi matrix $J_{ac}$ can be constructed before performing a Jacobi rotation on the matrix $A$ until a certain tolerance is reached.  Note however the high computational cost of finding the largest off-diagonal elements, since running through both the rows and the columns can only be done in $\mathcal{O}(n^2)$.\\
+
+\noindent The cyclic Jacob method can drastically reduce the computational cost. Instead of finding the largest off diagonal elements, the method consists in running through the rows.The operating cost of this method is about $\mathcal{O}(n^3\log(\log(|\epsilon|)))$, where $\epsilon_m$ is the machine precision.\\
+
+\noindent In order to compare the efficiency of the two methods, the computational time needed to diagonalize random matrices of increasing size is plotted on the left part of Fig.(\ref{jacobi_fig}), for both the standard and the cyclic Jacobi algorithms. On the right part of Fig.(\ref{jacobi_fig}), it is the number of rotations required to perform the diagonalization which is represented. One immediately notices that the cyclic Jacobi is much more efficient.\\
+
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 1 \textwidth]{Jacobi.eps}
+	\caption{\label{jacobi_fig}  Left: Computational time for both cyclic Jacobi (red) and standard Jacobi (blue) methods - Right: same for the number of rotations.}
+\end{figure}  
 
 \end{homeworkProblem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 \newpage
 
@@ -475,6 +667,19 @@ V(x)=
 \end{split}
 \eeq
 
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 0.6 \textwidth]{Hamiltonian.eps}
+	\caption{\label{hamiltonian}  Representation of our hamiltonian operator as a sparse matrix - $c=1$}
+\end{figure}  
+
+\noindent Fig.(\ref{hamiltonian}) shows the representation of our hamiltonian operator as a sparse matrix. Each blue dot represents a non zero coefficient, acting on the $(1\times N^2)$ vector containing each grid point. The diagonal corresponds to the Laplacian term, and the circle to the potential region. Fig.(\ref{hamilton_ellipt}) shows the same for a non zero ellipticity, that is for a parameter $c=2\neq 1$.\\
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[width = 0.6 \textwidth]{Hamiltonian_ellipt.eps}
+	\caption{\label{hamilton_ellipt}  Representation of our hamiltonian operator as a sparse matrix - $c=2$}
+\end{figure}  
 \end{homeworkProblem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

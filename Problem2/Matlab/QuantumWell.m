@@ -13,7 +13,7 @@
     r = 1e-9; % r = 1nm
     a = 5*r;  % range over which the grid is defined
     N = 100;  % number of points in each dir 
-    c  = 1;    % ellipticity parameter
+    c  = 2;    % ellipticity parameter
     V0 = -1.5; % eV - potential well
     constants = [r, a, N, c];
 
